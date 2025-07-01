@@ -1,0 +1,3 @@
+Write a simple textual App which will use `gh` (assuming it is installed) to retrieve recent issues from Github for the current git repo. Display the 10 most recent issues in a textual Table with columns for issue number, title, date, and labels. Selecting a row and hitting Enter should run `open` with the selected Issue URL.
+
+Make the App runnable as a single-file Python file using uv and inline dependencies PEP723
