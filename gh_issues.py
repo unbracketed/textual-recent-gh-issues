@@ -172,18 +172,29 @@ class IssuesApp(App):
         """Open the selected issue in the browser."""
         table = self.query_one(DataTable)
         
-        if not self.issues or table.cursor_row < 0:
+        if not self.issues:
+            self.notify("No issues loaded", severity="warning")
+            return
+            
+        if table.cursor_row < 0:
+            self.notify("No row selected", severity="warning")
             return
         
         try:
-            row_key = table.get_row_at(table.cursor_row).key
+            # Use coordinate_to_cell_key to get the row key from cursor position
+            row_key, _ = table.coordinate_to_cell_key(table.cursor_coordinate)
+            self.notify(f"Debug: row_key={row_key}, cursor_coordinate={table.cursor_coordinate}")
+            
             issue = next((i for i in self.issues if str(i.number) == row_key), None)
             
             if issue:
+                self.notify(f"Debug: Found issue #{issue.number}, URL: {issue.url}")
                 webbrowser.open(issue.url)
                 self.notify(f"Opening issue #{issue.number}")
-        except Exception:
-            self.notify("Failed to open issue", severity="error")
+            else:
+                self.notify(f"Could not find issue with key: {row_key}", severity="error")
+        except Exception as e:
+            self.notify(f"Failed to open issue: {str(e)}", severity="error")
     
     def action_refresh(self) -> None:
         """Refresh the issues list."""
